@@ -83,15 +83,31 @@ class Populate():
         self.value = self.c[ichromosome].Decode(self.iset, self.k)
         if self.value == Answer:
             self.a.append(self.c.pop(ichromosome))
+            self.p = self.p - 1
         else:
             self.c[ichromosome].f = (self.p*self.c[ichromosome].f)+self.p/abs(Answer-self.value)
         return self.value
 
-    def Solve(self, Answer):
+    def Genetics(self):
         self.pop = []
         for self.i in range(self.p):
             for self.j in range(self.p*self.c[i].f):
                 self.pop.append(self.i)
+        self.choice1 = random.choice(self.pop)
+        for self.i in range(self.pop.count(choice1)):
+            self.pop.remove(choice1)
+        self.choice2 = random.choice(self.pop)
+        self.pop = []
+        for self.i in range(self.choice1.g):
+            for self.j in range(self.choice1.g[i].c):
+                for self.l in range(self.choice1.g[i].c[j].cr*len(self.choice1.g)*len(self.choice1.g[i].c))
+                    self.pop.append(self.i*len(self.choice1.g[i].c)+self.j)
+        for self.i in range(self.choice2.g):
+            for self.j in range(self.choice2.g[i].c):
+                for self.l in range(self.choice2.g[i].c[j].cr*len(self.choice2.g)*len(self.choice2.g[i].c))
+                    self.pop.append(self.i*len(self.choice2.g[i].c)+self.j)
+        
+        self.cross = random.choice(self.pop)
         
 
 InsSet = ["isint(self.gval)","isoperator(self.gval)"]
