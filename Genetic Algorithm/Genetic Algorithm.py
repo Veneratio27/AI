@@ -69,6 +69,10 @@ class Chromosome():
         else:
             return ""
 
+    def totallen(self):
+
+    def split(self):
+
 class Populate():
     def __init__(self, population, instructionset, key, lengthrange, rangeset, glength):
         self.p = population
@@ -83,15 +87,37 @@ class Populate():
         self.value = self.c[ichromosome].Decode(self.iset, self.k)
         if self.value == Answer:
             self.a.append(self.c.pop(ichromosome))
+            self.p = self.p - 1
         else:
             self.c[ichromosome].f = (self.p*self.c[ichromosome].f)+self.p/abs(Answer-self.value)
         return self.value
 
-    def Solve(self, Answer):
+    def Genetics(self):
         self.pop = []
         for self.i in range(self.p):
             for self.j in range(self.p*self.c[i].f):
                 self.pop.append(self.i)
+        self.choice1 = random.choice(self.pop)
+        for self.i in range(self.pop.count(self.choice1)):
+            self.pop.remove(self.choice1)
+        self.choice2 = random.choice(self.pop)
+        self.pop = []
+        self.length1 = 0
+        self.length2 = 0
+        for self.i in range(self.choice1.g):
+            for self.j in range(self.choice1.g[i].c):
+                for self.l in range((1/self.choice1.g[i].c[j].cr)*len(self.choice1.g)*len(self.choice1.g[i].c))
+                    self.pop.append(self.i*len(self.choice1.g[i].c)+self.j)
+                    self.length1 = self.length1 + 1
+            
+        for self.i in range(self.choice2.g):
+            for self.j in range(self.choice2.g[i].c):
+                for self.l in range((1/self.choice2.g[i].c[j].cr)*len(self.choice2.g)*len(self.choice2.g[i].c))
+                    self.pop.append(self.i*len(self.choice2.g[i].c)+self.j)
+                    self.length2 = self.length2 + 1
+
+        for self.i in range((self.length1+self.length2)*)
+        self.cross = random.choice(self.pop)
         
 
 InsSet = ["isint(self.gval)","isoperator(self.gval)"]
