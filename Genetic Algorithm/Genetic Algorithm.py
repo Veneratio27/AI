@@ -111,10 +111,14 @@ class Refresh(threading.Thread):
                     i = 0
                     while i < len(self.pop.c):
                     #for i in range(len(self.pop.c)):
-                        #print "i " + str(i)
+                        print "i " + str(i)
                         if i > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
                             self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(self.pop.c[i].Index))
                         else:
+                            print "i " + str(i)
+                            print "len " + str(len(self.pop.c))
+                            print "index " + str(self.pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText())
                             if str(self.pop.c[i].Index) != self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,0,str(self.pop.c[i].Index))
                         #print len(self.pop.c)
                         #print self.pop.c[i].outputData(self.pop.iset,self.pop.k)
@@ -124,7 +128,7 @@ class Refresh(threading.Thread):
                         if self.pop.c[i].codonString != self._parent.lct_VM_Chromosomes.GetItem(i,3).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,3,self.pop.c[i].codonString)
                         if str(self.pop.c[i].f) != self._parent.lct_VM_Chromosomes.GetItem(i,4).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self.pop.c[i].f))
                         if str(self.pop.c[i].cr) != self._parent.lct_VM_Chromosomes.GetItem(i,5).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self.pop.c[i].cr))
-                        if str(self.pop.c[i].GeneLength) != self._parent.lct_VM_Chromosomes.GetItem(i,6).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(self.pop.c[i].GeneLength))
+                        if str(len(self.pop.c[i].g)) != self._parent.lct_VM_Chromosomes.GetItem(i,6).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(len(self.pop.c[i].g)))
                         #_value[1].append([str(i),
                         #                str(self.pop.c[i].Decode(self.pop.iset,self.pop.k)[0]),
                         #                self.pop.c[i].Decode(self.pop.iset,self.pop.k)[1],
@@ -957,7 +961,8 @@ class Populate():
                 #print equation
                 #if self.p%50 == 0 : print "Chromosomes Remaining - " + str(self.p)
             else:
-                self.c[ichromosome].f += abs(self.Answer-abs(self.Answer-value))
+                self.c[ichromosome].f = self.Answer-abs(self.Answer-value)
+                if self.c[ichromosome].f < 1 : self.c[ichromosome].f = 1
                 
             return value
         else:
