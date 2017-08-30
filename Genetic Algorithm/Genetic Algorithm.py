@@ -3,9 +3,12 @@ import wx
 import threading
 import Queue
 import math
+import sys
 
 global v_pop
 v_pop = []
+#q_Update = Queue.Queue(1)
+q_Population = Queue.Queue(1)
 
 # -*- coding: utf-8 -*- 
 
@@ -19,375 +22,307 @@ v_pop = []
 import wx.xrc
 import time
 
-t_EVT_REFRESH = wx.NewEventType()
-EVT_REFRESH = wx.PyEventBinder(t_EVT_REFRESH, 1)
-
-q_Population = Queue.Queue(1)
-
-class RefreshEvent(wx.PyCommandEvent):
-    def __init__(self, etype, eid, value=None):
-        wx.PyCommandEvent.__init__(self,etype,eid)
-        self._value = value
-
-    def GetValue(self):
-        return self._value
-
 class Refresh(threading.Thread):
     def __init__(self, parent,selPop=wx.NOT_FOUND,selChrome=wx.NOT_FOUND,selGene=wx.NOT_FOUND):
         threading.Thread.__init__(self)
+        print "Refresh Init - Threaded"
         self._parent = parent
+        print "Refresh Init - Parent"
         self._selPop = selPop
+        print "Refresh Init - selPop"
         self._selChrome = selChrome
+        print "Refresh Init - selChrome"
         self._selGene = selGene
+        print "Refresh Init - selGene"
         self._GPDone = False
         self._ADone = False
-        self.pop = self.pop = q_Population.get()
-
-    def runagain(self, parent,selPop=wx.NOT_FOUND,selChrome=wx.NOT_FOUND,selGene=wx.NOT_FOUND):
-        self._parent = parent
-        self._selPop = selPop
-        self._selChrome = selChrome
-        self._selGene = selGene
-        self._GPDone = False
-        self._ADone = False
-        self.run()
-
-    def OnRefresh(self, parent, val):
-        self._parent = parent
-        #print "onrefresh"
-        #wx.MessageBox("On Refresh - " + str(val), 'Info',  wx.OK | wx.ICON_INFORMATION)
+        #q_Update.get()
+        print "Refresh Init - Get from Update Queue"
+        self.p = self._parent.t_pop.p
+        print "Refresh Init - Complete"
         
 
     def run(self):
         while True:
+            #if q_Genetic.empty() == False:
+            #    update = q_Genetic.get()
+            #    if update[0] == "Answer":
+            #        self.populace.p = update[1]
+            #        self.populace.c.pop(update[2])
+            #        self.populace.a.append(update[3])
+            #    elif update[0] == "Remove":
+            #        self.populace.p = update[1]
+            #        self.populace.c.pop(update[2])
+            #    elif update[0] == "Update":
+            #        self.populace.c[update[1]] = update[2]
+            #else:
+            #    update = 0
             #print "refresh"
             #if q_Genetics.empty() == False:
             #    populace = q_Genetics.get()
-            #    self.pop.p = populace[0][0]
-            #    self.pop.c[populace[1][0]] == populace[1][1]
-            #    self.pop.c[populace[2][0]] == populace[2][1]
+            #    self.populace.p = populace[0][0]
+            #    self.populace.c[populace[1][0]] == populace[1][1]
+            #    self.populace.c[populace[2][0]] == populace[2][1]
             #if q_Answers.empty() == False:
-            #    self.pop.a.append(q_Answers.get())
-            #_value = [[self.pop.p,len(self.pop.a)]]
-            if not q_Population.empty() : self.pop = q_Population.get()
-            if str(self.pop.p) != self._parent.lct_VM_Population.GetItem(0,1).GetText() : self._parent.lct_VM_Population.SetStringItem(0,1,str(self.pop.p))
-            if str(len(self.pop.a)) != self._parent.lct_VM_Population.GetItem(1,1).GetText() : self._parent.lct_VM_Population.SetStringItem(1,1,str(len(self.pop.a)))
+            #    self.populace.a.append(q_Answers.get())
+            #_value = [[self.populace.p,len(self.populace.a)]]
+            
+            if str(self._parent.t_pop.p) != self._parent.lct_VM_Population.GetItem(0,1).GetText() : self._parent.lct_VM_Population.SetStringItem(0,1,str(self._parent.t_pop.p))
+            if str(len(self._parent.t_pop.a)) != self._parent.lct_VM_Population.GetItem(1,1).GetText() : self._parent.lct_VM_Population.SetStringItem(1,1,str(len(self._parent.t_pop.a)))
             if self._selPop == 0:
                 #print "selPop = 0"
-                self._ADone = False
+                #self._ADone = False
                 #_value.append([])
                 #try:
                 #    self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(populace[1][0]))
-                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(populace[1][1].Decode(self.pop.iset,self.pop.k)[0]))
-                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,2,str(populace[1][1].Decode(self.pop.iset,self.pop.k)[1]))
+                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(populace[1][1].Decode(self.populace.iset,self.populace.k)[0]))
+                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,2,str(populace[1][1].Decode(self.populace.iset,self.populace.k)[1]))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,3,''.join([str(populace[1][1].g[j].c[k].v) for j in range(len(populace[1][1].g)) for k in range(len(populace[1][1].g[j].c))]),)
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(populace[1][1].f))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(populace[1][1].cr))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(populace[1][1].GeneLength))
                     #_value[1].append([str(populace[1][0]),
-                    #                    str(populace[1][1].Decode(self.pop.iset,self.pop.k)[0]),
-                    #                    populace[1][1].Decode(self.pop.iset,self.pop.k)[1],
+                    #                    str(populace[1][1].Decode(self.populace.iset,self.populace.k)[0]),
+                    #                    populace[1][1].Decode(self.populace.iset,self.populace.k)[1],
                     #                    ''.join([str(populace[1][1].g[j].c[k].v) for j in range(len(populace[1][1].g)) for k in range(len(populace[1][1].g[j].c))]),
                     #                    str(populace[1][1].f),
                     #                    str(populace[1][1].cr),
                     #                    str(populace[1][1].GeneLength)])
                 #    self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(populace[2][0]))
-                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(populace[2][1].Decode(self.pop.iset,self.pop.k)[0]))
-                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,2,str(populace[2][1].Decode(self.pop.iset,self.pop.k)[1]))
+                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(populace[2][1].Decode(self.populace.iset,self.populace.k)[0]))
+                #    self._parent.lct_VM_Chromosomes.SetStringItem(i,2,str(populace[2][1].Decode(self.populace.iset,self.populace.k)[1]))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,3,''.join([str(populace[2][1].g[j].c[k].v) for j in range(len(populace[2][1].g)) for k in range(len(populace[2][1].g[j].c))]),)
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(populace[2][1].f))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(populace[2][1].cr))
                 #    self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(populace[2][1].GeneLength))
                     #_value[1].append([str(populace[2][0]),
-                    #                    str(populace[2][1].Decode(self.pop.iset,self.pop.k)[0]),
-                    #                    populace[2][1].Decode(self.pop.iset,self.pop.k)[1],
+                    #                    str(populace[2][1].Decode(self.populace.iset,self.populace.k)[0]),
+                    #                    populace[2][1].Decode(self.populace.iset,self.populace.k)[1],
                     #                    ''.join([str(populace[2][1].g[j].c[k].v) for j in range(len(populace[2][1].g)) for k in range(len(populace[2][1].g[j].c))]),
                     #                    str(populace[2][1].f),
                     #                    str(populace[2][1].cr),
                     #                    str(populace[2][1].GeneLength)])
                 #except:
                 #    pass
-                if self._GPDone == False:
-                    i = 0
-                    while i < len(self.pop.c):
-                    #for i in range(len(self.pop.c)):
-                        print "i " + str(i)
-                        if i > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
-                            self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(self.pop.c[i].Index))
-                        else:
+                #if self._GPDone == False:
+                i = 0
+                #print "len before " + str(len(self._parent.t_pop.c)) + " -----------------------------"
+                #while i < len(self.populace.c):
+                for i in range(len(self._parent.t_pop.c)):
+                    #if q_Population.full() : print "----------------------------------------------"
+                    #print "i " + str(i)
+                    if i > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
+                        if i < len(self._parent.t_pop.c):
+                            self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(self._parent.t_pop.c[i].Index))
+                    else:
+                        if i < len(self._parent.t_pop.c):
+                            try:
+                                if str(self._parent.t_pop.c[i].Index) != self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,0,str(self._parent.t_pop.c[i].Index))
+                            except:
+                                print "i " + str(i)
+                                print "len " + str(len(self._parent.t_pop.c))
+                                #print "index " + str(self._parent.t_pop.c[i].Index)
+                                print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText())
+                    #print "len 1 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    #print len(self.populace.c)
+                    #print self.populace.c[i].outputData(self.populace.iset,self.populace.k)
+                    #print str(self.populace.c[i].Decode(self.populace.iset,self.populace.k)[0])
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if str(self._parent.t_pop.c[i].value) != self._parent.lct_VM_Chromosomes.GetItem(i,1).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(self._parent.t_pop.c[i].value))
+                        except:
                             print "i " + str(i)
-                            print "len " + str(len(self.pop.c))
-                            print "index " + str(self.pop.c[i].Index)
-                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText())
-                            if str(self.pop.c[i].Index) != self._parent.lct_VM_Chromosomes.GetItem(i,0).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,0,str(self.pop.c[i].Index))
-                        #print len(self.pop.c)
-                        #print self.pop.c[i].outputData(self.pop.iset,self.pop.k)
-                        #print str(self.pop.c[i].Decode(self.pop.iset,self.pop.k)[0])
-                        if str(self.pop.c[i].value) != self._parent.lct_VM_Chromosomes.GetItem(i,1).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(self.pop.c[i].value))
-                        if self.pop.c[i].equation != self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,2,self.pop.c[i].equation)
-                        if self.pop.c[i].codonString != self._parent.lct_VM_Chromosomes.GetItem(i,3).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,3,self.pop.c[i].codonString)
-                        if str(self.pop.c[i].f) != self._parent.lct_VM_Chromosomes.GetItem(i,4).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self.pop.c[i].f))
-                        if str(self.pop.c[i].cr) != self._parent.lct_VM_Chromosomes.GetItem(i,5).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self.pop.c[i].cr))
-                        if str(len(self.pop.c[i].g)) != self._parent.lct_VM_Chromosomes.GetItem(i,6).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(len(self.pop.c[i].g)))
-                        #_value[1].append([str(i),
-                        #                str(self.pop.c[i].Decode(self.pop.iset,self.pop.k)[0]),
-                        #                self.pop.c[i].Decode(self.pop.iset,self.pop.k)[1],
-                        #                ''.join([str(self.pop.c[i].g[j].c[k].v) for j in range(len(self.pop.c[i].g)) for k in range(len(self.pop.c[i].g[j].c))]),
-                        #                str(self.pop.c[i].f),
-                        #                str(self.pop.c[i].cr),
-                        #                str(self.pop.c[i].GeneLength)])
-                        i += 1
-                    for i in range(len(self.pop.c),self._parent.lct_VM_Chromosomes.GetItemCount()):
-                        self._parent.lct_VM_Chromosomes.DeleteItem(len(self.pop.c))
-                        if self._selChrome >= len(self.pop.c) : self._selChrome = len(self.pop.c)-1
-                    self._GPDone == True
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,1).GetText())
+                    #print "len 2 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if self._parent.t_pop.c[i].equation != self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,2,self._parent.t_pop.c[i].equation)
+                        except:
+                            print "i " + str(i)
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText())
+                    #print "len 3 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if self._parent.t_pop.c[i].codonString != self._parent.lct_VM_Chromosomes.GetItem(i,3).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,3,self._parent.t_pop.c[i].codonString)
+                        except:
+                            print "i " + str(i)
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,3).GetText())
+                    #print "len 4 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if str(self._parent.t_pop.c[i].f) != self._parent.lct_VM_Chromosomes.GetItem(i,4).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self._parent.t_pop.c[i].f))
+                        except:
+                            print "i " + str(i)
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText())
+                    #print "len 5 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if str(self._parent.t_pop.c[i].cr) != self._parent.lct_VM_Chromosomes.GetItem(i,5).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self._parent.t_pop.c[i].cr))
+                        except:
+                            print "i " + str(i)
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText())
+                    #print "len 6 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    if i < len(self._parent.t_pop.c):
+                        try:
+                            if str(len(self._parent.t_pop.c[i].g)) != self._parent.lct_VM_Chromosomes.GetItem(i,6).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(len(self._parent.t_pop.c[i].g)))
+                        except:
+                            print "i " + str(i)
+                            print "len " + str(len(self._parent.t_pop.c))
+                            #print "index " + str(self._parent.t_pop.c[i].Index)
+                            print "get text " + str(self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText())
+                    #print "len 7 " + str(len(self._parent.t_pop.c))
+                    #if q_Population.full() : print "----------------------------------------------"
+                    #_value[1].append([str(i),
+                    #                str(self.populace.c[i].Decode(self.populace.iset,self.populace.k)[0]),
+                    #                self.populace.c[i].Decode(self.populace.iset,self.populace.k)[1],
+                    #                ''.join([str(self.populace.c[i].g[j].c[k].v) for j in range(len(self.populace.c[i].g)) for k in range(len(self.populace.c[i].g[j].c))]),
+                    #                str(self.populace.c[i].f),
+                    #                str(self.populace.c[i].cr),
+                    #                str(self.populace.c[i].GeneLength)])
+                    #i += 1
+                for i in range(len(self._parent.t_pop.c),self._parent.lct_VM_Chromosomes.GetItemCount()):
+                    self._parent.lct_VM_Chromosomes.DeleteItem(len(self._parent.t_pop.c))
+                    if self._selChrome >= len(self._parent.t_pop.c) : self._selChrome = len(self._parent.t_pop.c)-1
+                    #self._GPDone == True
+                #elif update != 0:
+                #    if update[0] == "Answer" or update[0] == "Remove":
+                #        self._parent.lct_VM_Chromosomes.DeleteItem(update[2])
+                #    elif update[0] == "update":
+                #        if str(self.populace.c[update[1]].value) != self._parent.lct_VM_Chromosomes.GetItem(i,1).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(self.populace.c[update[1]].value))
+                #        if self.populace.c[update[1]].equation != self._parent.lct_VM_Chromosomes.GetItem(i,2).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,2,self.populace.c[update[1]].equation)
+                #        if self.populace.c[update[1]].codonString != self._parent.lct_VM_Chromosomes.GetItem(i,3).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,3,self.populace.c[update[1]].codonString)
+                #        if str(self.populace.c[update[1]].f) != self._parent.lct_VM_Chromosomes.GetItem(i,4).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self.populace.c[update[1]].f))
+                #        if str(self.populace.c[update[1]].cr) != self._parent.lct_VM_Chromosomes.GetItem(i,5).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self.populace.c[update[1]].cr))
+                #        if str(len(self.populace.c[update[1]].g)) != self._parent.lct_VM_Chromosomes.GetItem(i,6).GetText() : self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(len(self.populace.c[update[1]].g)))
                 if self._selChrome != wx.NOT_FOUND:
-                    for j in range(len(self.pop.c[self._selChrome].g)):
+                    for j in range(len(self._parent.t_pop.c[self._selChrome].g)):
+                        #print "j " + str(j)
+                        try:
+                            if j < len(self._parent.t_pop.c[self._selChrome].g):
+                                if j > self._parent.lct_VM_Genes.GetItemCount()-1:
+                                    self._parent.lct_VM_Genes.InsertStringItem(j,str(j))
+                                else:
+                                    if str(j) != self._parent.lct_VM_Genes.GetItem(j,0).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,0,str(j))
+                            if j < len(self._parent.t_pop.c[self._selChrome].g):
+                                if self._parent.t_pop.c[self._selChrome].g[j].value != self._parent.lct_VM_Genes.GetItem(j,1).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,1,self._parent.t_pop.c[self._selChrome].g[j].value)
+                            if j < len(self._parent.t_pop.c[self._selChrome].g):
+                                if self._parent.t_pop.c[self._selChrome].g[j].codonString != self._parent.lct_VM_Genes.GetItem(j,2).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,2,self._parent.t_pop.c[self._selChrome].g[j].codonString)
+                            if j < len(self._parent.t_pop.c[self._selChrome].g):
+                                if str(len(self._parent.t_pop.c[self._selChrome].g[j].c)) != self._parent.lct_VM_Genes.GetItem(j,3).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,3,str(len(self._parent.t_pop.c[self._selChrome].g[j].c)))
+                                #_value[2].append([str(j),
+                                #                    self.populace.c[i].g[j].Decode(self.populace.k,self.populace.rangeset),
+                                #                    ''.join([self.populace.c[i].g[j].c[k].v for k in range(len(self.populace.c[i].g[j].c))]),
+                                #                    str(len(self.populace.c[i].g[j].c))])
+                        except:
+                            True
+                    if self._selGene != wx.NOT_FOUND:
+                        for k in range(len(self._parent.t_pop.c[self._selChrome].g[self._selGene].c)):
+                            try:
+                                if k > self._parent.lct_VM_Codons.GetItemCount()-1:
+                                    self._parent.lct_VM_Codons.InsertStringItem(k,str(k))
+                                else:
+                                    self._parent.lct_VM_Codons.SetStringItem(k,0,str(k))
+                                self._parent.lct_VM_Codons.SetStringItem(k,1,str(self._parent.t_pop.c[self._selChrome].g[self._selGene].c[k].v))
+                                self._parent.lct_VM_Codons.SetStringItem(k,2,str(self._parent.t_pop.c[self._selChrome].g[self._selGene].c[k].cr))
+                                self._parent.lct_VM_Codons.SetStringItem(k,3,str(self._parent.t_pop.c[self._selChrome].g[self._selGene].c[k].mr))
+                                #_value.append([str(k),
+                                #                str(self.populace.c[i].g[j].c[k].v),
+                                #                str(self.populace.c[i].g[j].c[k].cr),
+                                #                str(self.populace.c[i].g[j].c[k].mr)])
+                            except:
+                                True
+                        for k in range(len(self._parent.t_pop.c[self._selChrome].g[self._selGene].c), self._parent.lct_VM_Codons.GetItemCount()):
+                            self._parent.lct_VM_Codons.DeleteItem(len(self._parent.t_pop.c[self._selChrome].g[self._selGene].c))
+                    for j in range(len(self._parent.t_pop.c[self._selChrome].g), self._parent.lct_VM_Genes.GetItemCount()):
+                        self._parent.lct_VM_Genes.DeleteItem(len(self._parent.t_pop.c[self._selChrome].g))
+                        if self._selGene >= len(self._parent.t_pop.c[self._selChrome].g) : self._selGene = len(self._parent.t_pop.c[self._selChrome].g)-1
+            elif self._selPop == 1:
+                #print "selPop = 1"
+                #self._GPDone = False
+                #if self._ADone == False:
+                i = 0
+                while i < len(self._parent.t_pop.a):
+                #for i in range(len(self.populace.a)):
+                    #print "i " + str(i)
+                    if i > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
+                        self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(i))
+                    else:
+                        self._parent.lct_VM_Chromosomes.SetStringItem(i,0,str(i))
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(self._parent.t_pop.a[i].Decode(self._parent.t_pop.iset,self._parent.t_pop.k)[0]))
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,2,self._parent.t_pop.a[i].Decode(self._parent.t_pop.iset,self._parent.t_pop.k)[1])
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,3,''.join([str(self._parent.t_pop.a[i].g[j].c[k].v) for j in range(len(self._parent.t_pop.a[i].g)) for k in range(len(self._parent.t_pop.a[i].g[j].c))]))
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self._parent.t_pop.a[i].f))
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self._parent.t_pop.a[i].cr))
+                    self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(self._parent.t_pop.a[i].GeneLength))
+                    #_value[1].append([str(i),
+                    #                str(self.populace.a[i].Decode(self.populace.iset,self.populace.k)[0]),
+                    #                self.populace.a[i].Decode(self.populace.iset,self.populace.k)[1],
+                    #                ''.join([str(self.populace.a[i].g[j].c[k].v) for j in range(len(self.populace.a[i].g)) for k in range(len(self.populace.a[i].g[j].c))]),
+                    #                str(self.populace.a[i].f),
+                    #                str(self.populace.a[i].cr),
+                    #                str(self.populace.a[i].GeneLength)])
+                    i += 1
+                for i in range(len(self._parent.t_pop.a),self._parent.lct_VM_Chromosomes.GetItemCount()):
+                    self._parent.lct_VM_Chromosomes.DeleteItem(len(self._parent.t_pop.a))
+                    #self._ADone = True
+                if self._selChrome != wx.NOT_FOUND:
+                    #_value.append([])
+                    for j in range(len(self._parent.t_pop.a[self._selChrome].g)):
                         #print "j " + str(j)
                         if j > self._parent.lct_VM_Genes.GetItemCount()-1:
                             self._parent.lct_VM_Genes.InsertStringItem(j,str(j))
                         else:
                             if str(j) != self._parent.lct_VM_Genes.GetItem(j,0).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,0,str(j))
-                        if self.pop.c[self._selChrome].g[j].value != self._parent.lct_VM_Genes.GetItem(j,1).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,1,self.pop.c[self._selChrome].g[j].value)
-                        if self.pop.c[self._selChrome].g[j].codonString != self._parent.lct_VM_Genes.GetItem(j,2).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,2,self.pop.c[self._selChrome].g[j].codonString)
-                        if str(len(self.pop.c[self._selChrome].g[j].c)) != self._parent.lct_VM_Genes.GetItem(j,3).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,3,str(len(self.pop.c[self._selChrome].g[j].c)))
+                        if self._parent.t_pop.a[self._selChrome].g[j].value != self._parent.lct_VM_Genes.GetItem(j,1).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,1,self._parent.t_pop.a[self._selChrome].g[j].value)
+                        if self._parent.t_pop.a[self._selChrome].g[j].codonString != self._parent.lct_VM_Genes.GetItem(j,2).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,2,self._parent.t_pop.a[self._selChrome].g[j].codonString)
+                        if str(len(self._parent.t_pop.a[self._selChrome].g[j].c)) != self._parent.lct_VM_Genes.GetItem(j,3).GetText() : self._parent.lct_VM_Genes.SetStringItem(j,3,str(len(self._parent.t_pop.a[self._selChrome].g[j].c)))
                         #_value[2].append([str(j),
-                        #                    self.pop.c[i].g[j].Decode(self.pop.k,self.pop.rangeset),
-                        #                    ''.join([self.pop.c[i].g[j].c[k].v for k in range(len(self.pop.c[i].g[j].c))]),
-                        #                    str(len(self.pop.c[i].g[j].c))])
+                        #                    self.populace.a[i].g[j].Decode(self.populace.k,self.populace.rangeset),
+                        #                    ''.join([self.populace.a[i].g[j].c[k].v for k in range(len(self.populace.a[i].g[j].c))]),
+                        #                    str(len(self.populace.a[i].g[j].c))])
                     if self._selGene != wx.NOT_FOUND:
-                        for k in range(len(self.pop.c[self._selChrome].g[self._selGene].c)):
+                        #_value.append([])
+                        for k in range(len(self._parent.t_pop.a[i].g[j].c)):
                             if k > self._parent.lct_VM_Codons.GetItemCount()-1:
                                 self._parent.lct_VM_Codons.InsertStringItem(k,str(k))
                             else:
                                 self._parent.lct_VM_Codons.SetStringItem(k,0,str(k))
-                            self._parent.lct_VM_Codons.SetStringItem(k,1,str(self.pop.c[self._selChrome].g[self._selGene].c[k].v))
-                            self._parent.lct_VM_Codons.SetStringItem(k,2,str(self.pop.c[self._selChrome].g[self._selGene].c[k].cr))
-                            self._parent.lct_VM_Codons.SetStringItem(k,3,str(self.pop.c[self._selChrome].g[self._selGene].c[k].mr))
+                            self._parent.lct_VM_Codons.SetStringItem(k,1,str(self._parent.t_pop.a[self._selChrome].g[self._selGene].c[k].v))
+                            self._parent.lct_VM_Codons.SetStringItem(k,2,str(self._parent.t_pop.a[self._selChrome].g[self._selGene].c[k].cr))
+                            self._parent.lct_VM_Codons.SetStringItem(k,3,str(self._parent.t_pop.a[self._selChrome].g[self._selGene].c[k].mr))
                             #_value.append([str(k),
-                            #                str(self.pop.c[i].g[j].c[k].v),
-                            #                str(self.pop.c[i].g[j].c[k].cr),
-                            #                str(self.pop.c[i].g[j].c[k].mr)])
-                        for k in range(len(self.pop.c[self._selChrome].g[self._selGene].c), self._parent.lct_VM_Codons.GetItemCount()):
-                            self._parent.lct_VM_Codons.DeleteItem(len(self.pop.c[self._selChrome].g[self._selGene].c))
-                    for j in range(len(self.pop.c[self._selChrome].g), self._parent.lct_VM_Genes.GetItemCount()):
-                        self._parent.lct_VM_Genes.DeleteItem(len(self.pop.c[self._selChrome].g))
-                        if self._selGene >= len(self.pop.c[self._selChrome].g) : self._selGene = len(self.pop.c[self._selChrome].g)-1
-            elif self._selPop == 1:
-                #print "selPop = 1"
-                self._GPDone = False
-                if self._ADone == False:
-                    i = 0
-                    while i < len(self.pop.a):
-                    #for i in range(len(self.pop.a)):
-                        #print "i " + str(i)
-                        if i > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
-                            self._parent.lct_VM_Chromosomes.InsertStringItem(i,str(i))
-                        else:
-                            self._parent.lct_VM_Chromosomes.SetStringItem(i,0,str(i))
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,1,str(self.pop.a[i].Decode(self.pop.iset,self.pop.k)[0]))
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,2,self.pop.a[i].Decode(self.pop.iset,self.pop.k)[1])
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,3,''.join([str(self.pop.a[i].g[j].c[k].v) for j in range(len(self.pop.a[i].g)) for k in range(len(self.pop.a[i].g[j].c))]))
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,4,str(self.pop.a[i].f))
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,5,str(self.pop.a[i].cr))
-                        self._parent.lct_VM_Chromosomes.SetStringItem(i,6,str(self.pop.a[i].GeneLength))
-                        #_value[1].append([str(i),
-                        #                str(self.pop.a[i].Decode(self.pop.iset,self.pop.k)[0]),
-                        #                self.pop.a[i].Decode(self.pop.iset,self.pop.k)[1],
-                        #                ''.join([str(self.pop.a[i].g[j].c[k].v) for j in range(len(self.pop.a[i].g)) for k in range(len(self.pop.a[i].g[j].c))]),
-                        #                str(self.pop.a[i].f),
-                        #                str(self.pop.a[i].cr),
-                        #                str(self.pop.a[i].GeneLength)])
-                        i += 1
-                    for i in range(len(self.pop.a),self._parent.lct_VM_Chromosomes.GetItemCount()):
-                        self._parent.lct_VM_Chromosomes.DeleteItem(len(self.pop.a))
-                    self._ADone = True
-                if self._selChrome != wx.NOT_FOUND:
-                    _value.append([])
-                    for j in range(len(self.pop.a[i].g)):
-                        #print "j " + str(j)
-                        if j > self._parent.lct_VM_Genes.GetItemCount()-1:
-                            self._parent.lct_VM_Genes.InsertStringItem(i,str(j))
-                        else:
-                            self._parent.lct_VM_Genes.SetStringItem(i,str(j))
-                        self._parent.lct_VM_Genes.SetStringItem(i,1,self.pop.a[i].g[j].Decode(self.pop.k,self.pop.rangeset))
-                        self._parent.lct_VM_Genes.SetStringItem(i,2,''.join([self.pop.a[i].g[j].c[k].v for k in range(len(self.pop.a[i].g[j].c))]))
-                        self._parent.lct_VM_Genes.SetStringItem(i,3,str(len(self.pop.a[i].g[j].c)))
-                        #_value[2].append([str(j),
-                        #                    self.pop.a[i].g[j].Decode(self.pop.k,self.pop.rangeset),
-                        #                    ''.join([self.pop.a[i].g[j].c[k].v for k in range(len(self.pop.a[i].g[j].c))]),
-                        #                    str(len(self.pop.a[i].g[j].c))])
-                    if self._selGene != wx.NOT_FOUND:
-                        _value.append([])
-                        for k in range(len(self.pop.a[i].g[j].c)):
-                            if k > self._parent.lct_VM_Codons.GetItemCount()-1:
-                                self._parent.lct_VM_Codons.InsertStringItem(i,str(k))
-                            else:
-                                self._parent.lct_VM_Codons.SetStringItem(i,str(k))
-                            self._parent.lct_VM_Codons.SetStringItem(i,1,str(self.pop.a[i].g[j].c[k].v))
-                            self._parent.lct_VM_Codons.SetStringItem(i,2,str(self.pop.a[i].g[j].c[k].cr))
-                            self._parent.lct_VM_Codons.SetStringItem(i,3,str(self.pop.a[i].g[j].c[k].mr))
-                            #_value.append([str(k),
-                            #                str(self.pop.a[i].g[j].c[k].v),
-                            #                str(self.pop.a[i].g[j].c[k].cr),
-                            #                str(self.pop.a[i].g[j].c[k].mr)])
-                        for k in range(len(self.pop.a[self._selChrome].g[self._selGene].c), self._parent.lct_VM_Codons.GetItemCount()):
-                            self._parent.lct_VM_Codons.DeleteItem(len(self.pop.a[self._selChrome].g[self._selGene].c))
-                    for j in range(len(self.pop.a[self._selChrome].g), self._parent.lct_VM_Genes.GetItemCount()):
-                        self._parent.lct_VM_Genes.DeleteItem(len(self.pop.a[self._selChrome].g))
+                            #                str(self.populace.a[i].g[j].c[k].v),
+                            #                str(self.populace.a[i].g[j].c[k].cr),
+                            #                str(self.populace.a[i].g[j].c[k].mr)])
+                        for k in range(len(self._parent.t_pop.a[self._selChrome].g[self._selGene].c), self._parent.lct_VM_Codons.GetItemCount()):
+                            self._parent.lct_VM_Codons.DeleteItem(len(self._parent.t_pop.a[self._selChrome].g[self._selGene].c))
+                    for j in range(len(self._parent.t_pop.a[self._selChrome].g), self._parent.lct_VM_Genes.GetItemCount()):
+                        self._parent.lct_VM_Genes.DeleteItem(len(self._parent.t_pop.a[self._selChrome].g))
                     else:
                         self._parent.lct_VM_Codons.DeleteAllItems()
                 else:
                     self._parent.lct_VM_Genes.DeleteAllItems()
             else:
                 self._parent.lct_VM_Chromosomes.DeleteAllItems()
-            
-            #merge loops
-            """val = _value
-            for i in range(len(val)):
-                print 'First For i = ' + str(i)
-                for j in range(len(val[i])):
-                    print 'First For i = ' + str(i) + ' j = ' + str(j)
-                    if i == 0:
-                        print "First 0"
-                        self._parent.lct_VM_Population.SetStringItem(j,1,str(val[i][j]))
-                    elif i == 1:
-                        print "First 1"
-                        for k in range(len(val[i][j])):
-                            if int(val[i][j][0]) > self._parent.lct_VM_Chromosomes.GetItemCount()-1:
-                                self._parent.lct_VM_Chromosomes.InsertStringItem(int(val[i][j][0]),val[i][j][k])
-                            else:
-                                self._parent.lct_VM_Chromosomes.SetStringItem(int(val[i][j][0]),k,val[i][j][k])
-                    elif i == 2:
-                        print "First 2"
-                        #wx.MessageBox('2', 'Info',  wx.OK | wx.ICON_INFORMATION)
-                        for k in range(len(val[i][j])):
-                            if int(val[i][j][0]) > self._parent.lct_VM_Genes.GetItemCount()-1:
-                                self._parent.lct_VM_Genes.InsertStringItem(j,val[i][j][k])
-                            else:
-                                self._parent.lct_VM_Genes.SetStringItem(j,k,val[i][j][k])
-                    elif i == 3:
-                        print "First 3"
-                        #wx.MessageBox('3', 'Info',  wx.OK | wx.ICON_INFORMATION)
-                        for k in range(len(val[i][j])):
-                            if int(val[i][j][0]) > self._parent.lct_VM_Codons.GetItemCount()-1:
-                                self._parent.lct_VM_Codons.InsertStringItem(j,val[i][j][k])
-                            else:
-                                self._parent.lct_VM_Codons.SetStringItem(j,k,val[i][j][k])"""
-            #wx.MessageBox('After First For', 'Info',  wx.OK | wx.ICON_INFORMATION)
-            #if self._parent.PopSel != wx.NOT_FOUND:
-            #    print "Population Selected"
-            #    for i in range(1,len(_val)):
-            #        if i == 1:
-            #            print "Second 1"
-            #            for j in range(len(val[i]), self._parent.lct_VM_Chromosomes.GetItemCount()):
-            #                self._parent.lct_VM_Chromosomes.DeleteItem(j)
-            #        elif i == 2:
-            #            print "Second 2"
-            #            for j in range(len(val[i]), self._parent.lct_VM_Genes.GetItemCount()):
-            #                self._parent.lct_VM_Genes.DeleteItem(j)
-            #        elif i == 3:
-            #            print "Second 3"
-            #            for j in range(len(val[i]), self._parent.lct_VM_Codons.GetItemCount()):
-            #                self._parent.lct_VM_Codons.DeleteItem(j)
-            #    for i in range(len(val),4):
-            #        if i == 2:
-            #            print "Third 2"
-            #            self._parent.lct_VM_Genes.DeleteAllItems()
-            #        elif i == 3:
-            #            print "Third 3"
-            #            self._parent.lct_VM_Codons.DeleteAllItems()
-            #else:
-            #    print "No Population Selected"
-            #    self._parent.lct_VM_Chromosomes.DeleteAllItems()
-            #    self._parent.lct_VM_Genes.DeleteAllItems()
-            #    self._parent.lct_VM_Codons.DeleteAllItems()
-            #print "After Last For"
-            #wx.MessageBox('After Last For', 'Info',  wx.OK | wx.ICON_INFORMATION)
-            #self.lct_VM_Population.SetItemState(0,wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
-            #worker = Refresh(self, self.PopSel,self.ChromeSel, self.GeneSel)
-            #print "Created worker"
             self._selPop = self._parent.PopSel
             self._selChrome = self._parent.ChromeSel
             self._selGene = self._parent.GeneSel
-            #print "End On Refresh"
-                            
-        """if self._selPop == 0:
-            _value.append([])
-            for i in range(len(populace.c)):
-                print "i " + str(i)
-                _value[1].append([str(i),
-                                    str(populace.c[i].Decode(populace.iset,populace.k)[0]),
-                                    populace.c[i].Decode(populace.iset,populace.k)[1],
-                                    ''.join([str(populace.c[i].g[j].c[k].v) for j in range(len(populace.c[i].g)) for k in range(len(populace.c[i].g[j].c))]),
-                                    str(populace.c[i].f),
-                                    str(populace.c[i].cr),
-                                    str(populace.c[i].GeneLength)])
-                if self._selChrome != wx.NOT_FOUND:
-                    _value.append([])
-                    for j in range(len(populace.c[i].g)):
-                        print "j " + str(j)
-                        _value[2].append([str(j),
-                                            populace.c[i].g[j].Decode(populace.k,populace.rangeset),
-                                            ''.join([populace.c[i].g[j].c[k].v for k in range(len(populace.c[i].g[j].c))]),
-                                            str(len(populace.c[i].g[j].c))])
-                        if self._selGene != wxNOT_FOUND:
-                            _value.append([])
-                            for k in range(len(populace.c[i].g[j].c)):
-                                _value.append([str(k),
-                                                    str(populace.c[i].g[j].c[k].v),
-                                                    str(populace.c[i].g[j].c[k].cr),
-                                                    str(populace.c[i].g[j].c[k].mr)])
-                                #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                                #print "post refresh"
-                                #wx.PostEvent(self._parent,evt)
-                        #else:
-                            #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                            #print "post refresh"
-                            #wx.PostEvent(self._parent,evt)
-                #else:
-                    #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                    #print "post refresh"
-                    #wx.PostEvent(self._parent,evt)
-        elif self._selPop == 1:
-            _value.append([])
-            for i in range(len(populace.a)):
-                _value[1].append([str(i),
-                                    str(populace.c[i].Decode(populace.iset,populace.k)[0]),
-                                    populace.a[i].Decode(populace.iset,populace.k)[1],
-                                    ''.join([populace.a[i].g[j].c[k].v for k in range(len(populace.a[i].g[j].c)) for j in range(len(populace.c[i].g))]),
-                                    str(populace.a[i].f),
-                                    str(populace.a[i].cr),
-                                    str(populace.a[i].GeneLength)])
-                if self._selChrome != wx.NOT_FOUND:
-                    _value.append([])
-                    for j in range(len(populace.a[i].g)):
-                        _value[2].append([[str(j),
-                                            populace.a[i].g[j].Decode(populace.k,populace.rangeset),
-                                            ''.join([populace.a[i].g[j].c[k].v for k in range(len(populace.a[i].g[j].c))]),
-                                            str(len(populace.a[i].g[j].c))]])
-                        if self._selGene != wxNOT_FOUND:
-                            _value.append([])
-                            for k in range(len(populace.a[i].g[j].c)):
-                                _value[3].append([])
-                                _value.append([str(k),
-                                                    str(populace.a[i].g[j].c[k].v),
-                                                    str(populace.a[i].g[j].c[k].cr),
-                                                    str(populace.a[i].g[j].c[k].mr)])
-                                #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                                #print "post refresh"
-                                #wx.PostEvent(self._parent,evt)
-                        #else:
-                            #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                            #print "post refresh"
-                            #wx.PostEvent(self._parent,evt)
-                #else:
-                    #evt = RefreshEvent(t_EVT_REFRESH, -1, _value)
-                    #print "post refresh"
-                    #wx.PostEvent(self._parent,evt)
-        #else:"""
-        #print "post refresh"
-        self.OnRefresh(self._parent,_value)
 
 
 ###########################################################################
@@ -483,8 +418,9 @@ class f_Viewer ( wx.Frame ):
         self.lct_VM_Population.SetStringItem(0,1,str(self.Population))
         self.lct_VM_Population.SetStringItem(0,1,"0")
 
-        self.t_pop = threading.Thread(target=Populate,args=(self.Population,self.InstructionSet,self.KeySet,self.CLengthSet,self.RangeSet,self.GLength,self.Answer))
+        self.t_pop = Populate(self.Population,self.InstructionSet,self.KeySet,self.CLengthSet,self.RangeSet,self.GLength,self.Answer)
         self.t_pop.start()
+        print "Populate Completed"
         #wx.MessageBox('2', 'Info',  wx.OK | wx.ICON_INFORMATION)
         self.worker = Refresh(self, self.PopSel,self.ChromeSel, self.GeneSel)
         self.worker.start()
@@ -765,18 +701,18 @@ def isint(value):
         return False
 
 class Codon():
-    def __init__(self, value, crossover):
+    def __init__(self, value):
         self.mr = 0.001
         self.v = value
-        self.cr = crossover
+        self.cr = 1
 
 class Gene():
-    def __init__(self, rangeset, length, crossrate):
+    def __init__(self, rangeset, length):
         self.glength = length
         self.c = []
         self.value = ""
         for i in range(length):
-            self.c.append(Codon(random.choice(rangeset), crossrate))
+            self.c.append(Codon(random.choice(rangeset)))
         self.codonString = ''.join([str(i.v) for i in self.c])
 
     def Decode(self, key, rangeset):
@@ -791,7 +727,6 @@ class Gene():
 class Chromosome():
     def __init__(self, parent, Index, length, rangeset, glength, fitness):
         self.r = rangeset
-        self.cr = 0.3
         self.f = fitness
         self.GeneLength = glength
         self.g = []
@@ -799,9 +734,12 @@ class Chromosome():
         self.Index = Index
         self.parent = parent
         self.equation = ""
+        self.cr = 0
         
         for i in range(length):
-            self.g.append(Gene(self.r, glength, self.cr/(float(length)*float(glength))))
+            self.g.append(Gene(self.r, self.GeneLength))
+            for j in range(len(self.g[i].c)):
+                self.cr = self.cr + self.g[i].c[j].cr
         self.codonString = ''.join([str(j.v) for i in self.g for j in i.c])
         
 
@@ -834,7 +772,7 @@ class Chromosome():
         return val
 
     def split(self, Index):
-        newGene = Gene([0,1],self.totallen()-Index,0.1)
+        newGene = Gene([0,1],self.totallen()-Index)
         k = 0
         l = 0
         m = 0
@@ -846,23 +784,40 @@ class Chromosome():
                 k = k + 1
             l = i
             if k == Index : break
+        self.parent.output += "Gene Location - " + str(l) + "\n" + "Codon Location - "  + str(m) + '\n'
+        #wx.MessageBox("Gene Location - " + str(l) + "\n" + "Codon Location - "  + str(m), 'Gene and Codon Indices found for Index',  wx.OK | wx.ICON_INFORMATION)
         #c_orglen =
         #print self.outputData(self.parent.iset,self.parent.k)
         for i in range(Index, self.totallen()):
             #print self.g[int(math.floor(i/len(self.g)))].c[Index%len(self.g[int(math.floor(Index/len(self.g)))].c)]
             #if Index%len(self.g[int(math.floor(Index/g_orglen))].c) == 0 : c_orglen = len(self.g[int(math.floor(Index/g_orglen))].c)
+            self.parent.output += "Pulling Codon\n" + str(self.g[l].c[m].v) + '\n'
+            #wx.MessageBox(str(self.g[l].c[m].v), 'Pulling Codon',  wx.OK | wx.ICON_INFORMATION)
             newGene.c[i-Index] = self.g[l].c.pop(m)
+            self.parent.output += "NewGene Creating\n" + str([newGene.c[j].v for j in range(i-Index+1)]) + '\n'
+            #wx.MessageBox(str([newGene.c[j].v for j in range(i-Index+1)]), 'NewGene Creating',  wx.OK | wx.ICON_INFORMATION)
+            self.parent.output += "Before Shifting Codons\n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
+            #wx.MessageBox(str(self.outputData(self.parent.iset,self.parent.k)), 'Before Shifting Codons',  wx.OK | wx.ICON_INFORMATION)
             for j in range(l+1,len(self.g)):
-                if len(self.g[j].c) == 0:
-                    #print "test"
-                    self.g.pop(j)
-                else:
-                    self.g[j-1].c.append(self.g[j].c.pop(0))
-            try:
-                if len(self.g[j].c) == 0:
-                    self.g.pop(j)
-            except:
-                pass
+                    #wx.MessageBox(str(self.outputData(self.parent.iset,self.parent.k)), 'Remove Empty Gene',  wx.OK | wx.ICON_INFORMATION)
+                self.parent.output += str(self.g[j]) + '\n'
+                self.parent.output += "Pulling from Gene - " + str(j) + "\nCodon - " + str(self.g[j].c[0].v) + '\n'
+                self.g[j-1].c.append(self.g[j].c.pop(0))
+                self.parent.output += "Shifted\n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
+                    #wx.MessageBox(str(self.outputData(self.parent.iset,self.parent.k)), 'Shifted',  wx.OK | wx.ICON_INFORMATION)
+            if len(self.g[len(self.g)-1].c) == 0:
+                #print "test"
+                self.g.pop(len(self.g)-1)
+                self.parent.output += "Remove Empty Gene\n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
+            #try:
+            #    if len(self.g[j].c) == 0:
+            #        self.g.pop(j)
+            #        print "Remove Empty Gene\n" + str(self.outputData(self.parent.iset,self.parent.k))
+            #        #wx.MessageBox(str(self.outputData(self.parent.iset,self.parent.k)), 'Remove Empty Gene',  wx.OK | wx.ICON_INFORMATION)
+            #except:
+            #    print "Somehow this happened\n" + str(self.outputData(self.parent.iset,self.parent.k))
+            #    #wx.MessageBox(str(self.outputData(self.parent.iset,self.parent.k)), 'Somehow this happened',  wx.OK | wx.ICON_INFORMATION)
+            #    pass
         #for i in range(len(self.g)):
             #print self.outputData(self.parent.iset,self.parent.k)
             #print i
@@ -879,30 +834,48 @@ class Chromosome():
         #print ''.join([str(newGene.c[i].v) for i in range(len(newGene.c))])
         bnone = True
         #print "test 1"
-        for i in range(len(self.g)):
-            if self.g[i].glength > len(self.g[i].c):
-                bnone = False
-                break
+        self.parent.output += "Amount of Genes - " + str(len(self.g)) + '\n'
+        if len(self.g) != 0 and self.GeneLength > len(self.g[len(self.g)-1].c):
+            self.parent.output += "Normal Gene Length - " + str(self.g[len(self.g)-1].glength) + '\n'
+            self.parent.output += "Actual Gene Length - " + str(len(self.g[len(self.g)-1].c)) + '\n'
+            self.parent.output += "bnone = False" + '\n'
+            bnone = False
+        #for i in range(len(self.g)):
+        #    if self.g[i].glength > len(self.g[i].c):
+        #        bnone = False
+        #        break
         if bnone == False:
-            for j in range(len(self.g[i].c),self.g[i].glength):
+            for j in range(len(self.g[len(self.g)-1].c),self.g[len(self.g)-1].glength):
                 #print j
-                if len(newGene.c) > 0 : self.g[i].c.append(newGene.c.pop(0))
+                if len(newGene.c) > 0:
+                    self.parent.output += "Pull out from NewGene - " + str(newGene.c[0].v) + '\n'
+                    self.g[len(self.g)-1].c.append(newGene.c.pop(0))
+                    self.parent.output += "Appending:\n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
         #print "test 2"
         while len(newGene.c) > 0:
-            Temp = Gene([0,1], self.GeneLength, 0.1)
+            Temp = Gene([0,1], self.GeneLength)
             #print "Append - 1 - NewGene Length" + str(len(newGene.c))
             #print "Append - 2 - NewGene Codons - " + ''.join([str(newGene.c[i].v) for i in range(len(newGene.c))])
             #print len(Temp.c)
+            self.parent.output += "Length of New Gene - " + str(len(newGene.c)) + "\nLengeth of Temp Gene - " + str(len(Temp.c)) + '\n'
             if len(newGene.c) > len(Temp.c):
                 #print "test 3"
                 for i in range(len(Temp.c)):
+                    self.parent.output += "Pull out from NewGene - " + str(newGene.c[0].v) + '\n'
                     Temp.c[i] = newGene.c.pop(0)
+                    self.parent.output += "Compiling Temp Gene: - " + ''.join([str(Temp.c[j].v) for j in range(0,i+1)]) + '\n'
                 self.g.append(Temp)
+                self.parent.output += "Adding to Genes - \n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
             else:
                 #print "Append 3 - NewGene Length - " + str(len(newGene.c))
                 #print ''.join([str(newGene.c[i].v) for i in range(len(newGene.c))])
                 #wx.MessageBox("Append 1 - ", 'Info',  wx.OK | wx.ICON_INFORMATION)
-                self.g.append(newGene)
+                self.parent.output += "Rest of the newGene - " + ''.join([str(newGene.c[i].v) for i in range(len(newGene.c))]) + '\n'
+                for i in range(len(newGene.c)):
+                    Temp.c[i] = newGene.c.pop(0)
+                self.g.append(Temp)
+                #self.g.append(newGene)
+                self.parent.output += "Adding to Genes - \n" + str(self.outputData(self.parent.iset,self.parent.k)) + '\n'
                 #print "Append - After Append"
                 #print self.outputData(self.parent.iset,self.parent.k)
                 break
@@ -924,31 +897,36 @@ class Chromosome():
                          "Total Length - " + str(self.totallen()),
                          "Fitness Value" + str(self.f),
                          "Decoded Information - " + str(Temp),
-                         "Binary Data - " + ''.join([str(j.v) for i in self.g for j in i.c]),
+                         "Binary Data - " + ' '.join([''.join([str(j.v) for j in i.c]) for i in self.g]),
                          "Length of the Genes - " + str(self.GeneLength),
                          "Amount of Genes - " + str(len(self.g)),
                          "Codon Data",
                          "Value, Cross Rate, Mutation Rate",
                          '\n'.join([','.join([str(k) for k in [j.v,j.cr,j.mr]]) for i in self.g for j in i.c])])
 
-class Populate():
+class Populate(threading.Thread):
     def __init__(self, population, instructionset, key, lengthrange, rangeset, glength, Answer):
+        threading.Thread.__init__(self)
         self.p = population
         self.iset = instructionset
         self.k = key
+        self.relcr = 0
         self.rangeset = rangeset
         self.c = []
         self.a = []
+        self.output = ""
         self.Answer = Answer
         for i in range(self.p):
             self.c.append(Chromosome(self,i,random.choice(lengthrange),rangeset,glength,1))
+            self.relcr = self.relcr + self.c[i].cr
+        self.relcr = int(self.relcr/self.p)
+            
         oldpop = self.p
         for i in range(self.p):
             self.Decode(i-(oldpop-self.p))
         q_Population.put(self)
-        self.Genetics()
             
-    def Decode(self, ichromosome):
+    def Decode(self, ichromosome,update=False):
         value = self.c[ichromosome].Decode(self.iset, self.k)
         equation = value[1]
         value = value[0]
@@ -958,19 +936,21 @@ class Populate():
             if value == self.Answer:
                 self.a.append(self.c.pop(ichromosome))
                 self.p = self.p - 1
+                #if update == True : q_Genetic.put(["Answer",self.p,ichromosome,self.a[len(self.a)-1]])
                 #print equation
                 #if self.p%50 == 0 : print "Chromosomes Remaining - " + str(self.p)
             else:
                 self.c[ichromosome].f = self.Answer-abs(self.Answer-value)
                 if self.c[ichromosome].f < 1 : self.c[ichromosome].f = 1
-                
-            return value
+                #if update == True : q_Genetic.put(["Update",ichromosome,self.c[ichromosome]])
         else:
-            self.c.pop(ichromosome)
             self.p = self.p - 1
+            self.c.pop(ichromosome)
+            #if update == True : q_Genetic.put(["Remove",self.p,ichromosome])
             #if self.p%50 == 0 : print "Chromosomes Remaining - " + str(self.p)
+            
 
-    def Genetics(self):
+    def run(self):
         while self.p > 1:
             populace = []
             #print "Genetics - populate for Choice1"
@@ -979,7 +959,7 @@ class Populate():
             #    for j in range(int(self.p*self.c[i].f)):
             #        populace.append(i)
             #choice1 = random.choice(populace)
-            choice1 = weighted_choice([[i,self.c[i].f] for i in range(self.p)])
+            choice1 = weighted_choice([[i,self.c[i].f] for i in range(len(self.c))])
             #print choice1
             #print self.c[choice1].f
             #self.c[choice1].f = 1/float(self.p)
@@ -993,7 +973,7 @@ class Populate():
             #            populace.append(i)
             #print len(populace)
             #choice2 = random.choice(populace)
-            choice2 = weighted_choice([[i,self.c[i].f] for i in range(self.p) if i != choice1])
+            choice2 = weighted_choice([[i,self.c[i].f] for i in range(len(self.c)) if i != choice1])
             #self.c[choice2].f = 1/float(self.p)
             self.c[choice2].f = 1
             #wx.MessageBox("Genetics 2 - " + self.c[choice2].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
@@ -1001,66 +981,121 @@ class Populate():
             length1 = 0
             length2 = 0
             #print "Genetics - populate Codons for Crossing on Choice1"
-            for i in range(len(self.c[choice1].g)):
-                for j in range(len(self.c[choice1].g[i].c)):
-                    for l in range(int((self.c[choice1].g[i].c[j].cr)*(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
-                        populace.append(i*len(self.c[choice1].g[i].c)+j)
-                        length1 = length1 + 1
+            Tempchoice = [choice1,choice2,""]
+            for i in Tempchoice:
+                if i != "":
+                    for j in range(len(self.c[i].g)):
+                        for l in range(len(self.c[i].g[j].c)):
+                            populace.append([j*len(self.c[i].g[j].c)+l,self.c[i].g[j].c[l].cr])
+                else:
+                    if (self.c[choice1].cr+self.c[choice2].cr)-(2*self.relcr) > 0:
+                        populace.append(["",(self.c[choice1].cr+self.c[choice2].cr)-(2*self.relcr)])
+            #print populace
+            #wx.MessageBox("Genetics 2 - " + self.c[choice2].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
+            cross = weighted_choice(populace,True)
+            #for i in range(len(self.c[choice1].g)):
+            #    for j in range(len(self.c[choice1].g[i].c)):
+            #        for l in range(int((self.c[choice1].g[i].c[j].cr)*(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
+            #            populace.append(i*len(self.c[choice1].g[i].c)+j)
+            #            length1 = length1 + 1
             #print "Genetics - populate Codons for Crossing on Choice2"
-            for i in range(len(self.c[choice2].g)):
-                for j in range(len(self.c[choice2].g[i].c)):
-                    for l in range(int((self.c[choice2].g[i].c[j].cr)*(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
-                        populace.append(i*len(self.c[choice2].g[i].c)+j)
-                        length2 = length2 + 1
+            #for i in range(len(self.c[choice2].g)):
+            #    for j in range(len(self.c[choice2].g[i].c)):
+            #        for l in range(int((self.c[choice2].g[i].c[j].cr)*(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
+            #            populace.append(i*len(self.c[choice2].g[i].c)+j)
+            #            length2 = length2 + 1
             #print "Genetics - populate the blanks for Crossing"
-            for i in range(int((length1+length2)-(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
-                populace.append("")
-            cross = random.choice(range(len(populace)))-1
+            #for i in range(int((length1+length2)-(self.c[choice1].totallen()+self.c[choice2].totallen())*100)):
+            #    populace.append("")
+            #cross = random.choice(range(len(populace)))-1
             #print self.c[choice1].outputData(self.iset,self.k)
             #print self.c[choice2].outputData(self.iset,self.k)
-            #wx.MessageBox("Genetics 3 - ", 'Info',  wx.OK | wx.ICON_INFORMATION)
-            if populace[cross] <> "":
-                if cross+1 <= length1:
+            self.output = str([[i,populace[i][0],populace[i][1]] for i in range(len(populace))]) + "\n" + str(cross) + '\n'
+            #wx.MessageBox(str([[i,populace[i][0],populace[i][1]] for i in range(len(populace))]) + "\n" + str(cross), 'Cross is picked',  wx.OK | wx.ICON_INFORMATION)
+            if populace[cross][0] <> "":
+                if cross+1 <= self.c[choice1].totallen():
                     #print "cross " + str(populace[cross])
-                    Temp = self.c[choice1].split(populace[cross])
+                    self.output += str(self.c[choice1].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice1].outputData(self.iset,self.k)), 'About to Split Choice1',  wx.OK | wx.ICON_INFORMATION)
+                    Temp = self.c[choice1].split(populace[cross][0])
+                    self.output += str([Temp.c[i].v for i in range(len(Temp.c))]) + '\n'
+                    #wx.MessageBox(str([Temp.c[i].v for i in range(len(Temp.c))]), 'Temp Gene',  wx.OK | wx.ICON_INFORMATION)
                     Temp2 = 0
-                    if populace[cross] <= self.c[choice2].totallen():
-                        Temp2 = self.c[choice2].split(populace[cross])
+                    if cross <= self.c[choice2].totallen():
+                        self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'About to Split Choice2',  wx.OK | wx.ICON_INFORMATION)
+                        Temp2 = self.c[choice2].split(populace[cross][0])
+                        self.output += str([Temp2.c[i].v for i in range(len(Temp2.c))]) + '\n'
+                        #wx.MessageBox(str([Temp2.c[i].v for i in range(len(Temp2.c))]), 'Temp Gene',  wx.OK | wx.ICON_INFORMATION)
                         #print "test"
                     #print Temp2
-                    if Temp2 != 0 : self.c[choice1].append(Temp2)
+                    if Temp2 != 0:
+                        self.output += str(self.c[choice1].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice1].outputData(self.iset,self.k)), 'Before Append to Choice1',  wx.OK | wx.ICON_INFORMATION)
+                        self.c[choice1].append(Temp2)
+                        self.output += str(self.c[choice1].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice1].outputData(self.iset,self.k)), 'After Append to Choice1',  wx.OK | wx.ICON_INFORMATION)
+                    self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'Before Append to Choice2',  wx.OK | wx.ICON_INFORMATION)
                     self.c[choice2].append(Temp)
+                    self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'After Append to Choice2',  wx.OK | wx.ICON_INFORMATION)
                     #print "Genetic - After append"
                     #print self.c[choice2].outputData(self.iset,self.k)
                     l = 0
                     for i in self.c[choice1].g:
                         for j in i.c:
-                            j.cr += 0.01 if l < populace[cross] else j.cr == 0.3/float(self.c[choice1].totallen())
+                            if l < populace[cross][0]:
+                                j.cr =+ 1
+                            else:
+                                j.cr = 1
                             l += 1
-                elif cross+1 > length1:
+                elif cross+1 > self.c[choice1].totallen():
                     #print "cross " + str(populace[cross])
-                    Temp = self.c[choice2].split(populace[cross])
+                    self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'About to Split Choice2',  wx.OK | wx.ICON_INFORMATION)
+                    Temp = self.c[choice2].split(populace[cross][0])
+                    self.output += str([Temp.c[i].v for i in range(len(Temp.c))]) + '\n'
+                    #wx.MessageBox(str([Temp.c[i].v for i in range(len(Temp.c))]), 'Temp Gene',  wx.OK | wx.ICON_INFORMATION)
                     Temp2 = 0
-                    if populace[cross] <= self.c[choice1].totallen():
-                        Temp2 = self.c[choice1].split(populace[cross])
+                    if populace[cross][0] <= self.c[choice1].totallen():
+                        self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'About to Split Choice2',  wx.OK | wx.ICON_INFORMATION)
+                        Temp2 = self.c[choice1].split(populace[cross][0])
+                        self.output += str([Temp2.c[i].v for i in range(len(Temp2.c))]) + '\n'
+                        #wx.MessageBox(str([Temp2.c[i].v for i in range(len(Temp2.c))]), 'Temp Gene',  wx.OK | wx.ICON_INFORMATION)
                         #print "test"
                     #print Temp2
-                    if Temp2 != 0 : self.c[choice2].append(Temp2)
+                    if Temp2 != 0:
+                        self.output += str(self.c[choice1].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice1].outputData(self.iset,self.k)), 'Before Append to Choice1',  wx.OK | wx.ICON_INFORMATION)
+                        self.c[choice2].append(Temp2)
+                        self.output += str(self.c[choice1].outputData(self.iset,self.k)) + '\n'
+                        #wx.MessageBox(str(self.c[choice1].outputData(self.iset,self.k)), 'After Append to Choice1',  wx.OK | wx.ICON_INFORMATION)
+                    self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'Before Append to Choice2',  wx.OK | wx.ICON_INFORMATION)
                     self.c[choice1].append(Temp)
+                    self.output += str(self.c[choice2].outputData(self.iset,self.k)) + '\n'
+                    #wx.MessageBox(str(self.c[choice2].outputData(self.iset,self.k)), 'After Append to Choice2',  wx.OK | wx.ICON_INFORMATION)
                     #print "Genetic - After append"
                     #print self.c[choice1].outputData(self.iset,self.k)
                     l = 0
                     for i in self.c[choice2].g:
                         for j in i.c:
-                            j.cr += 0.01 if l < populace[cross] else j.cr == 0.3/float(self.c[choice2].totallen())
+                            if l < populace[cross][0]:
+                                j.cr += 1
+                            else:
+                                j.cr = 1
                             l += 1
             #wx.MessageBox("Genetics 4 - " + self.c[choice1].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
             #wx.MessageBox("Genetics 5 - " + self.c[choice2].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
             for i in self.c[choice1].g:
-                if len(i.c) == 0:
+                if len(i.c) == 0 or len(i.c) > i.glength:
+                    print self.output
                     wx.MessageBox("Genetics 4 - " + self.c[choice1].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
             for i in self.c[choice2].g:
-                if len(i.c) == 0:
+                if len(i.c) == 0 or len(i.c) > i.glength:
+                    print self.output
                     wx.MessageBox("Genetics 4 - " + self.c[choice2].outputData(self.iset, self.k), 'Info',  wx.OK | wx.ICON_INFORMATION)
             #print "Genetics - populate for Mutation Rate Choice1"
             for i in range(len(self.c[choice1].g)):
@@ -1097,20 +1132,34 @@ class Populate():
             self.c[choice1].reEvalCR()
             self.c[choice2].reEvalCR()
             prepop = self.p
-            self.Decode(choice1)
-            self.Decode(choice2-(prepop-self.p))
+            for i in range(len(self.c[choice1].g)):
+                if len(self.c[choice1].g[i].c) != 4 and not (len(self.c[choice1].g[i].c) < 4 and i == len(self.c[choice1].g)-1):
+                    print self.output
+                    sys.exit()
+            for i in range(len(self.c[choice2].g)):
+                if len(self.c[choice2].g[i].c) != 4 and not (len(self.c[choice2].g[i].c) < 4 and i == len(self.c[choice2].g)-1):
+                    print self.output
+                    sys.exit()
+            self.Decode(choice1)#,True)
+            self.Decode(choice2-(prepop-self.p))#,True)
+            if q_Population.empty() : q_Population.put(self)
             #print str(self.p)
-            if q_Population.empty() == True : q_Population.put(self)#q_Genetics.put([[self.p,self.a],[choice1,self.c[choice1]],[choice2,self.c[choice2]]])
+            #### Check
 
-def weighted_choice(choices):
-   total = sum(w for c, w in choices)
-   r = random.uniform(0, total)
-   upto = 0
-   for c, w in choices:
-      if upto + w >= r:
-         return c
-      upto += w
-   assert False, "Shouldn't get here"
+def weighted_choice(choices,index=False):
+    total = sum(w for c, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    i = 0
+    for c, w in choices:
+        if upto + w >= r:
+            if not index:
+                return c
+            else:
+                return i
+        upto += w
+        i = i + 1
+    assert False, "Shouldn't get here"
 
         
 
